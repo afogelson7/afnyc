@@ -1,103 +1,74 @@
-const API_BASE = '/api'
+import { CollaborationFilters, CollaborationFormData, BrandFormData } from './types';
+
+const API_BASE = '/api';
 
 export const api = {
   brands: {
-    getAll: () => fetch(`${API_BASE}/brands`).then(r => r.json()),
+    getAll: (params?: { industry?: string; search?: string }) => {
+      const query = params ? '?' + new URLSearchParams(params as any).toString() : '';
+      return fetch(`${API_BASE}/brands${query}`).then(r => r.json());
+    },
     get: (id: number) => fetch(`${API_BASE}/brands/${id}`).then(r => r.json()),
-    create: (data: any) => fetch(`${API_BASE}/brands`, {
+    getCollaborations: (id: number, params?: { limit?: number; offset?: number }) => {
+      const query = params ? '?' + new URLSearchParams(params as any).toString() : '';
+      return fetch(`${API_BASE}/brands/${id}/collaborations${query}`).then(r => r.json());
+    },
+    create: (data: BrandFormData) => fetch(`${API_BASE}/brands`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     }).then(r => r.json()),
-    update: (id: number, data: any) => fetch(`${API_BASE}/brands/${id}`, {
+    update: (id: number, data: BrandFormData) => fetch(`${API_BASE}/brands/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     }).then(r => r.json()),
     delete: (id: number) => fetch(`${API_BASE}/brands/${id}`, { method: 'DELETE' })
   },
-  retailers: {
-    getAll: () => fetch(`${API_BASE}/retailers`).then(r => r.json()),
-    get: (id: number) => fetch(`${API_BASE}/retailers/${id}`).then(r => r.json()),
-    create: (data: any) => fetch(`${API_BASE}/retailers`, {
+
+  collaborations: {
+    getAll: (params?: CollaborationFilters) => {
+      const query = params ? '?' + new URLSearchParams(params as any).toString() : '';
+      return fetch(`${API_BASE}/collaborations${query}`).then(r => r.json());
+    },
+    get: (id: number) => fetch(`${API_BASE}/collaborations/${id}`).then(r => r.json()),
+    getTypes: () => fetch(`${API_BASE}/collaborations/types`).then(r => r.json()),
+    getDates: (params?: { month?: string; year?: string }) => {
+      const query = params ? '?' + new URLSearchParams(params as any).toString() : '';
+      return fetch(`${API_BASE}/collaborations/dates${query}`).then(r => r.json());
+    },
+    getStats: () => fetch(`${API_BASE}/collaborations/stats/overview`).then(r => r.json()),
+    create: (data: CollaborationFormData) => fetch(`${API_BASE}/collaborations`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     }).then(r => r.json()),
-    update: (id: number, data: any) => fetch(`${API_BASE}/retailers/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    }).then(r => r.json()),
-    delete: (id: number) => fetch(`${API_BASE}/retailers/${id}`, { method: 'DELETE' })
+    update: (id: number, data: Partial<CollaborationFormData> & { status?: string }) =>
+      fetch(`${API_BASE}/collaborations/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      }).then(r => r.json()),
+    delete: (id: number) => fetch(`${API_BASE}/collaborations/${id}`, { method: 'DELETE' })
   },
-  products: {
-    getAll: () => fetch(`${API_BASE}/products`).then(r => r.json()),
-    get: (id: number) => fetch(`${API_BASE}/products/${id}`).then(r => r.json()),
-    create: (data: any) => fetch(`${API_BASE}/products`, {
+
+  tags: {
+    getAll: () => fetch(`${API_BASE}/tags`).then(r => r.json()),
+    create: (name: string) => fetch(`${API_BASE}/tags`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
+      body: JSON.stringify({ name })
     }).then(r => r.json()),
-    update: (id: number, data: any) => fetch(`${API_BASE}/products/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    }).then(r => r.json()),
-    delete: (id: number) => fetch(`${API_BASE}/products/${id}`, { method: 'DELETE' })
+    delete: (id: number) => fetch(`${API_BASE}/tags/${id}`, { method: 'DELETE' })
   },
-  sales: {
-    getAll: (params?: any) => {
-      const query = params ? '?' + new URLSearchParams(params).toString() : '';
-      return fetch(`${API_BASE}/sales${query}`).then(r => r.json());
-    },
-    uploadExcel: (file: File) => {
-      const formData = new FormData();
-      formData.append('file', file);
-      return fetch(`${API_BASE}/sales/upload`, {
-        method: 'POST',
-        body: formData
-      }).then(r => r.json());
-    },
-    getUploadHistory: () => fetch(`${API_BASE}/sales/upload-history`).then(r => r.json()),
-    deleteRange: (start: string, end: string) => fetch(`${API_BASE}/sales?start_date=${start}&end_date=${end}`, {
-      method: 'DELETE'
-    }).then(r => r.json())
-  },
-  forecasts: {
-    getAll: (params?: any) => {
-      const query = params ? '?' + new URLSearchParams(params).toString() : '';
-      return fetch(`${API_BASE}/forecasts${query}`).then(r => r.json());
-    },
-    get: (id: number) => fetch(`${API_BASE}/forecasts/${id}`).then(r => r.json()),
-    create: (data: any) => fetch(`${API_BASE}/forecasts`, {
+
+  industries: {
+    getAll: () => fetch(`${API_BASE}/industries`).then(r => r.json()),
+    create: (name: string) => fetch(`${API_BASE}/industries`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
+      body: JSON.stringify({ name })
     }).then(r => r.json()),
-    update: (id: number, data: any) => fetch(`${API_BASE}/forecasts/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    }).then(r => r.json()),
-    delete: (id: number) => fetch(`${API_BASE}/forecasts/${id}`, { method: 'DELETE' })
-  },
-  analytics: {
-    getDashboard: (params?: any) => {
-      const query = params ? '?' + new URLSearchParams(params).toString() : '';
-      return fetch(`${API_BASE}/analytics/dashboard${query}`).then(r => r.json());
-    },
-    getByCategory: (params?: any) => {
-      const query = params ? '?' + new URLSearchParams(params).toString() : '';
-      return fetch(`${API_BASE}/analytics/by-category${query}`).then(r => r.json());
-    },
-    getMargins: (params?: any) => {
-      const query = params ? '?' + new URLSearchParams(params).toString() : '';
-      return fetch(`${API_BASE}/analytics/margins${query}`).then(r => r.json());
-    },
-    getPerformance: (params?: any) => {
-      const query = params ? '?' + new URLSearchParams(params).toString() : '';
-      return fetch(`${API_BASE}/analytics/performance${query}`).then(r => r.json());
-    }
+    delete: (id: number) => fetch(`${API_BASE}/industries/${id}`, { method: 'DELETE' })
   }
-}
+};

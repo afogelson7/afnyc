@@ -1,7 +1,7 @@
 {
-  "name": "beauty-merch-planner",
+  "name": "collabiq",
   "version": "1.0.0",
-  "description": "Merchandise financial planning app for beauty companies",
+  "description": "Brand partnership intelligence platform - track collaborations in consumer products",
   "main": "dist/server/index.js",
   "scripts": {
     "dev": "concurrently \"npm run server:dev\" \"npm run client:dev\"",
@@ -10,9 +10,10 @@
     "build": "npm run build:server && npm run build:client",
     "build:server": "tsc -p tsconfig.server.json",
     "build:client": "vite build",
-    "start": "node dist/server/index.js"
+    "start": "node dist/server/index.js",
+    "seed": "ts-node-dev server/seed.ts"
   },
-  "keywords": ["beauty", "merchandise", "financial-planning"],
+  "keywords": ["brands", "partnerships", "collaborations", "consumer-products"],
   "author": "",
   "license": "MIT",
   "dependencies": {

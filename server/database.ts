@@ -1,110 +1,128 @@
 import sqlite3 from 'sqlite3';
 import { promisify } from 'util';
 
-const db = new sqlite3.Database('./beauty-sales.db');
+const db = new sqlite3.Database('./collabiq.db');
 
 const run = promisify(db.run.bind(db));
 const all = promisify(db.all.bind(db));
 const get = promisify(db.get.bind(db));
 
 export const initDatabase = async () => {
-  // Brands/Licenses
+  // Brands - companies that participate in collaborations
   await run(`
     CREATE TABLE IF NOT EXISTS brands (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT UNIQUE NOT NULL,
+      logo_url TEXT,
+      industry TEXT,
       description TEXT,
+      website TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
 
-  // Retailers
+  // Industries/Categories for filtering
   await run(`
-    CREATE TABLE IF NOT EXISTS retailers (
+    CREATE TABLE IF NOT EXISTS industries (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT UNIQUE NOT NULL,
-      code TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
 
-  // Products
+  // Collaborations - the main entity tracking brand partnerships
   await run(`
-    CREATE TABLE IF NOT EXISTS products (
+    CREATE TABLE IF NOT EXISTS collaborations (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      sku TEXT UNIQUE NOT NULL,
-      name TEXT NOT NULL,
+      title TEXT NOT NULL,
+      summary TEXT NOT NULL,
+      detailed_description TEXT,
+      source_url TEXT NOT NULL,
+      source_name TEXT,
+      image_url TEXT,
+      published_date DATE NOT NULL,
+      collaboration_type TEXT NOT NULL,
+      status TEXT DEFAULT 'active',
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  // Junction table for many-to-many relationship between collaborations and brands
+  await run(`
+    CREATE TABLE IF NOT EXISTS collaboration_brands (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      collaboration_id INTEGER NOT NULL,
       brand_id INTEGER NOT NULL,
-      category TEXT NOT NULL,
-      subcategory TEXT NOT NULL,
-      cogs REAL NOT NULL,
-      wholesale_cost REAL NOT NULL,
-      retailer_srp REAL,
+      role TEXT DEFAULT 'partner',
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (brand_id) REFERENCES brands(id)
+      FOREIGN KEY (collaboration_id) REFERENCES collaborations(id) ON DELETE CASCADE,
+      FOREIGN KEY (brand_id) REFERENCES brands(id) ON DELETE CASCADE,
+      UNIQUE(collaboration_id, brand_id)
     )
   `);
 
-  // Sales data (uploaded from Excel)
+  // Tags for collaborations
   await run(`
-    CREATE TABLE IF NOT EXISTS sales (
+    CREATE TABLE IF NOT EXISTS tags (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      product_id INTEGER NOT NULL,
-      retailer_id INTEGER NOT NULL,
-      sale_date DATE NOT NULL,
-      units_sold INTEGER NOT NULL,
-      revenue REAL NOT NULL,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (product_id) REFERENCES products(id),
-      FOREIGN KEY (retailer_id) REFERENCES retailers(id)
-    )
-  `);
-
-  // Forecasts/Budgets
-  await run(`
-    CREATE TABLE IF NOT EXISTS forecasts (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      year INTEGER NOT NULL,
-      period_type TEXT NOT NULL,
-      period_value TEXT NOT NULL,
-      brand_id INTEGER,
-      category TEXT,
-      subcategory TEXT,
-      retailer_id INTEGER,
-      forecasted_units INTEGER,
-      forecasted_revenue REAL NOT NULL,
-      notes TEXT,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (brand_id) REFERENCES brands(id),
-      FOREIGN KEY (retailer_id) REFERENCES retailers(id)
-    )
-  `);
-
-  // Seasonal periods
-  await run(`
-    CREATE TABLE IF NOT EXISTS seasonal_periods (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL,
-      start_date DATE NOT NULL,
-      end_date DATE NOT NULL,
-      year INTEGER NOT NULL,
+      name TEXT UNIQUE NOT NULL,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
 
-  // Upload history
+  // Junction table for collaboration tags
   await run(`
-    CREATE TABLE IF NOT EXISTS upload_history (
+    CREATE TABLE IF NOT EXISTS collaboration_tags (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      filename TEXT NOT NULL,
-      records_imported INTEGER,
-      upload_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-      status TEXT,
-      error_message TEXT
+      collaboration_id INTEGER NOT NULL,
+      tag_id INTEGER NOT NULL,
+      FOREIGN KEY (collaboration_id) REFERENCES collaborations(id) ON DELETE CASCADE,
+      FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE,
+      UNIQUE(collaboration_id, tag_id)
     )
   `);
 
-  console.log('Database initialized successfully');
+  // Insert default industries
+  const defaultIndustries = [
+    'Beauty & Cosmetics',
+    'Fashion & Apparel',
+    'Food & Beverage',
+    'Consumer Electronics',
+    'Home & Living',
+    'Health & Wellness',
+    'Entertainment & Media',
+    'Sports & Fitness',
+    'Automotive',
+    'Travel & Hospitality',
+    'Retail',
+    'Luxury Goods'
+  ];
+
+  for (const industry of defaultIndustries) {
+    await run(`INSERT OR IGNORE INTO industries (name) VALUES (?)`, [industry]);
+  }
+
+  // Insert default collaboration types as tags
+  const defaultTags = [
+    'Product Launch',
+    'Limited Edition',
+    'Co-Branding',
+    'Licensing Deal',
+    'Celebrity Partnership',
+    'Influencer Collaboration',
+    'Sustainability Initiative',
+    'Tech Integration',
+    'Retail Exclusive',
+    'Anniversary Collection',
+    'Seasonal Collection',
+    'Crossover'
+  ];
+
+  for (const tag of defaultTags) {
+    await run(`INSERT OR IGNORE INTO tags (name) VALUES (?)`, [tag]);
+  }
+
+  console.log('CollabIQ database initialized successfully');
 };
 
 export { db, run, all, get };

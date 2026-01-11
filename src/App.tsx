@@ -1,45 +1,74 @@
 import { useState } from 'react'
-import SalesDashboard from './components/SalesDashboard'
-import Setup from './components/Setup'
-import SalesUpload from './components/SalesUpload'
+import { NewsFeed } from './components/NewsFeed'
+import { BrandDirectory } from './components/BrandDirectory'
+import { BrandProfile } from './components/BrandProfile'
+import { AdminPanel } from './components/AdminPanel'
+import { View } from './types'
 import './App.css'
 
-type View = 'dashboard' | 'setup' | 'upload'
-
 function App() {
-  const [currentView, setCurrentView] = useState<View>('dashboard')
+  const [currentView, setCurrentView] = useState<View>('feed')
+  const [selectedBrandId, setSelectedBrandId] = useState<number | null>(null)
+
+  const handleBrandClick = (brandId: number) => {
+    setSelectedBrandId(brandId)
+    setCurrentView('brand-profile')
+  }
+
+  const handleBackToDirectory = () => {
+    setSelectedBrandId(null)
+    setCurrentView('brands')
+  }
 
   return (
     <div className="app">
       <nav className="navbar">
-        <h1>💄 Beauty Sales Tracker</h1>
+        <div className="nav-brand" onClick={() => setCurrentView('feed')}>
+          <span className="logo">CollabIQ</span>
+          <span className="tagline">Brand Partnership Intelligence</span>
+        </div>
         <div className="nav-links">
           <button
-            className={currentView === 'dashboard' ? 'active' : ''}
-            onClick={() => setCurrentView('dashboard')}
+            className={currentView === 'feed' ? 'active' : ''}
+            onClick={() => setCurrentView('feed')}
           >
-            Dashboard
+            Feed
           </button>
           <button
-            className={currentView === 'upload' ? 'active' : ''}
-            onClick={() => setCurrentView('upload')}
+            className={currentView === 'brands' || currentView === 'brand-profile' ? 'active' : ''}
+            onClick={() => setCurrentView('brands')}
           >
-            Upload Sales
+            Brands
           </button>
           <button
-            className={currentView === 'setup' ? 'active' : ''}
-            onClick={() => setCurrentView('setup')}
+            className={currentView === 'admin' ? 'active' : ''}
+            onClick={() => setCurrentView('admin')}
           >
-            Setup
+            Admin
           </button>
         </div>
       </nav>
 
       <main className="main-content">
-        {currentView === 'dashboard' && <SalesDashboard />}
-        {currentView === 'upload' && <SalesUpload />}
-        {currentView === 'setup' && <Setup />}
+        {currentView === 'feed' && (
+          <NewsFeed onBrandClick={handleBrandClick} />
+        )}
+        {currentView === 'brands' && (
+          <BrandDirectory onBrandClick={handleBrandClick} />
+        )}
+        {currentView === 'brand-profile' && selectedBrandId && (
+          <BrandProfile
+            brandId={selectedBrandId}
+            onBack={handleBackToDirectory}
+            onBrandClick={handleBrandClick}
+          />
+        )}
+        {currentView === 'admin' && <AdminPanel />}
       </main>
+
+      <footer className="footer">
+        <p>CollabIQ - Tracking brand partnerships in consumer products</p>
+      </footer>
     </div>
   )
 }
