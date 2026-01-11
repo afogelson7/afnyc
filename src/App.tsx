@@ -1,11 +1,10 @@
 import { useState } from 'react'
-import Dashboard from './components/Dashboard'
-import Products from './components/Products'
-import Budgets from './components/Budgets'
-import PurchaseOrders from './components/PurchaseOrders'
+import SalesDashboard from './components/SalesDashboard'
+import Setup from './components/Setup'
+import SalesUpload from './components/SalesUpload'
 import './App.css'
 
-type View = 'dashboard' | 'products' | 'budgets' | 'purchase-orders'
+type View = 'dashboard' | 'setup' | 'upload'
 
 function App() {
   const [currentView, setCurrentView] = useState<View>('dashboard')
@@ -13,7 +12,7 @@ function App() {
   return (
     <div className="app">
       <nav className="navbar">
-        <h1>💄 Beauty Merchandise Planner</h1>
+        <h1>💄 Beauty Sales Tracker</h1>
         <div className="nav-links">
           <button
             className={currentView === 'dashboard' ? 'active' : ''}
@@ -22,31 +21,24 @@ function App() {
             Dashboard
           </button>
           <button
-            className={currentView === 'products' ? 'active' : ''}
-            onClick={() => setCurrentView('products')}
+            className={currentView === 'upload' ? 'active' : ''}
+            onClick={() => setCurrentView('upload')}
           >
-            Products
+            Upload Sales
           </button>
           <button
-            className={currentView === 'budgets' ? 'active' : ''}
-            onClick={() => setCurrentView('budgets')}
+            className={currentView === 'setup' ? 'active' : ''}
+            onClick={() => setCurrentView('setup')}
           >
-            Budgets
-          </button>
-          <button
-            className={currentView === 'purchase-orders' ? 'active' : ''}
-            onClick={() => setCurrentView('purchase-orders')}
-          >
-            Purchase Orders
+            Setup
           </button>
         </div>
       </nav>
 
       <main className="main-content">
-        {currentView === 'dashboard' && <Dashboard />}
-        {currentView === 'products' && <Products />}
-        {currentView === 'budgets' && <Budgets />}
-        {currentView === 'purchase-orders' && <PurchaseOrders />}
+        {currentView === 'dashboard' && <SalesDashboard />}
+        {currentView === 'upload' && <SalesUpload />}
+        {currentView === 'setup' && <Setup />}
       </main>
     </div>
   )

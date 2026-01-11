@@ -5,7 +5,12 @@ const router = express.Router();
 
 router.get('/', async (req, res) => {
   try {
-    const products = await all('SELECT * FROM products ORDER BY created_at DESC');
+    const products = await all(`
+      SELECT p.*, b.name as brand_name
+      FROM products p
+      JOIN brands b ON p.brand_id = b.id
+      ORDER BY p.created_at DESC
+    `);
     res.json(products);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch products' });
@@ -14,7 +19,12 @@ router.get('/', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
   try {
-    const product = await get('SELECT * FROM products WHERE id = ?', [req.params.id]);
+    const product = await get(`
+      SELECT p.*, b.name as brand_name
+      FROM products p
+      JOIN brands b ON p.brand_id = b.id
+      WHERE p.id = ?
+    `, [req.params.id]);
     if (!product) {
       return res.status(404).json({ error: 'Product not found' });
     }
@@ -26,14 +36,19 @@ router.get('/:id', async (req, res) => {
 
 router.post('/', async (req, res) => {
   try {
-    const { sku, name, category, cost_price, retail_price, supplier } = req.body;
+    const { sku, name, brand_id, category, subcategory, cogs, wholesale_cost, retailer_srp } = req.body;
 
     const result = await run(
-      'INSERT INTO products (sku, name, category, cost_price, retail_price, supplier) VALUES (?, ?, ?, ?, ?, ?)',
-      [sku, name, category, cost_price, retail_price, supplier]
+      'INSERT INTO products (sku, name, brand_id, category, subcategory, cogs, wholesale_cost, retailer_srp) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      [sku, name, brand_id, category, subcategory, cogs, wholesale_cost, retailer_srp]
     );
 
-    const product = await get('SELECT * FROM products WHERE id = ?', [(result as any).lastID]);
+    const product = await get(`
+      SELECT p.*, b.name as brand_name
+      FROM products p
+      JOIN brands b ON p.brand_id = b.id
+      WHERE p.id = ?
+    `, [(result as any).lastID]);
     res.status(201).json(product);
   } catch (error) {
     res.status(500).json({ error: 'Failed to create product' });
@@ -42,14 +57,19 @@ router.post('/', async (req, res) => {
 
 router.put('/:id', async (req, res) => {
   try {
-    const { sku, name, category, cost_price, retail_price, supplier } = req.body;
+    const { sku, name, brand_id, category, subcategory, cogs, wholesale_cost, retailer_srp } = req.body;
 
     await run(
-      'UPDATE products SET sku = ?, name = ?, category = ?, cost_price = ?, retail_price = ?, supplier = ? WHERE id = ?',
-      [sku, name, category, cost_price, retail_price, supplier, req.params.id]
+      'UPDATE products SET sku = ?, name = ?, brand_id = ?, category = ?, subcategory = ?, cogs = ?, wholesale_cost = ?, retailer_srp = ? WHERE id = ?',
+      [sku, name, brand_id, category, subcategory, cogs, wholesale_cost, retailer_srp, req.params.id]
     );
 
-    const product = await get('SELECT * FROM products WHERE id = ?', [req.params.id]);
+    const product = await get(`
+      SELECT p.*, b.name as brand_name
+      FROM products p
+      JOIN brands b ON p.brand_id = b.id
+      WHERE p.id = ?
+    `, [req.params.id]);
     res.json(product);
   } catch (error) {
     res.status(500).json({ error: 'Failed to update product' });

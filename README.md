@@ -1,49 +1,61 @@
-# Beauty Merchandise Planner
+# Beauty Sales & Forecast Tracker
 
-A comprehensive financial planning application designed specifically for beauty companies to manage merchandise, budgets, and purchase orders.
+A comprehensive sales performance and forecast tracking application designed specifically for beauty companies selling multiple brands across various retailers.
 
-## Features
+## Overview
 
-### Product Catalog Management
-- Add, edit, and delete products with SKU tracking
-- Track cost price, retail price, and profit margins
-- Organize products by category (Skincare, Makeup, Haircare, Fragrance, Tools)
-- Manage supplier information
+This application helps beauty companies track sales performance across multiple dimensions (brands, retailers, categories, subcategories), compare actual results to forecasts and prior year, and analyze profit margins. The key feature is **Excel file upload** for easy sales data import.
 
-### Budget Planning
-- Create budgets by category and time period
-- Track allocated vs. spent amounts
-- Visual progress indicators
-- Budget utilization tracking
-- Over-budget alerts
+## Core Features
 
-### Purchase Order Management
-- Create and manage purchase orders
-- Track PO status (Pending, Ordered, Received, Cancelled)
-- Link products to purchase orders with quantities and unit costs
-- Expected delivery date tracking
-- Automatic total cost calculation
+### Sales Performance Tracking
+- Track sales by **Brand**, **Retailer**, **Category**, **Subcategory**, and **SKU**
+- Import sales data via **Excel file upload**
+- View total revenue, units sold, and number of SKUs sold
+- Compare performance: **Actual vs Forecast vs Prior Year**
+- Monthly, quarterly, and seasonal performance tracking
 
-### Financial Dashboard
-- Overview of key metrics
-- Product statistics and average margins
-- Budget allocation and spending summary
-- Purchase order analytics
-- Budget breakdown by category
-- Recent purchase order activity
+### Margin Analysis
+- Track **COGS** (Cost of Goods Sold), **Wholesale Cost**, and **Retailer SRP**
+- Analyze gross margins by:
+  - Brand/License
+  - Retailer
+  - Category
+  - Subcategory
+- Calculate margin percentages across all dimensions
+
+### Excel Integration
+- Upload sales data from Excel files
+- Automatic product and retailer matching
+- Upload history tracking
+- Error reporting for failed imports
+- Download sample template
+
+### Multi-Brand Management
+- Manage multiple brands/licenses
+- Track performance by brand
+- Brand-level forecasting
+
+### Data Management
+- **Brands/Licenses**: Manage your product brands
+- **Retailers**: Track all retailers you sell to
+- **Products**: Complete product catalog with SKU, brand, category, subcategory, and pricing
+- **Forecasts**: Create forecasts by period, category, brand, or retailer
 
 ## Tech Stack
 
 ### Frontend
 - **React 18** with TypeScript
-- **Vite** for fast development and building
-- Modern CSS with CSS variables
-- Responsive design for mobile and desktop
+- **Vite** for fast development
+- Modern CSS with responsive design
+- File upload with drag-and-drop support
 
 ### Backend
 - **Node.js** with Express
 - **TypeScript** for type safety
 - **SQLite** database for data persistence
+- **xlsx** library for Excel file parsing
+- **multer** for file uploads
 - RESTful API design
 
 ## Getting Started
@@ -87,129 +99,198 @@ npm start
 ## Project Structure
 
 ```
-beauty-merch-planner/
+beauty-sales-tracker/
 ├── server/                 # Backend API
 │   ├── database.ts        # Database setup and schema
 │   ├── index.ts           # Express server
 │   └── routes/            # API route handlers
+│       ├── brands.ts
+│       ├── retailers.ts
 │       ├── products.ts
-│       ├── budgets.ts
-│       ├── purchase-orders.ts
+│       ├── sales.ts
+│       ├── forecasts.ts
 │       └── analytics.ts
 ├── src/                   # Frontend React app
 │   ├── components/        # React components
-│   │   ├── Dashboard.tsx
-│   │   ├── Products.tsx
-│   │   ├── Budgets.tsx
-│   │   └── PurchaseOrders.tsx
+│   │   ├── SalesDashboard.tsx
+│   │   ├── SalesUpload.tsx
+│   │   └── Setup.tsx
 │   ├── api.ts            # API client functions
 │   ├── types.ts          # TypeScript type definitions
 │   ├── App.tsx           # Main app component
 │   └── main.tsx          # App entry point
+├── uploads/              # Temporary upload directory
 └── package.json          # Dependencies and scripts
 ```
 
+## Usage Guide
+
+### 1. Initial Setup
+
+First, set up your data in the **Setup** section:
+
+#### Brands
+1. Navigate to **Setup > Brands**
+2. Add all your brands/licenses
+3. Example: "L'Oréal", "Maybelline", "NYX"
+
+#### Retailers
+1. Navigate to **Setup > Retailers**
+2. Add all retailers you sell to
+3. Example: "Target", "Walmart", "Ulta", "Sephora"
+
+#### Products
+1. Navigate to **Setup > Products**
+2. Add your product catalog with:
+   - **SKU**: Unique product identifier
+   - **Name**: Product name
+   - **Brand**: Select from your brands
+   - **Category**: e.g., "Makeup", "Skincare", "Haircare"
+   - **Subcategory**: e.g., "Lipstick", "Foundation", "Moisturizer"
+   - **COGS**: Cost of goods sold
+   - **Wholesale Cost**: What you sell to retailers for
+   - **Retailer SRP**: Suggested retail price
+
+### 2. Upload Sales Data
+
+1. Navigate to **Upload Sales**
+2. Prepare an Excel file with these columns:
+   - **SKU**: Product SKU (must exist in your catalog)
+   - **Retailer**: Retailer name (will be created if doesn't exist)
+   - **Date**: Sale date (YYYY-MM-DD or Excel date format)
+   - **Units**: Number of units sold
+   - **Revenue**: Total revenue
+3. Click **Choose File** and select your Excel file
+4. Click **Upload Sales Data**
+5. Review the upload results
+
+#### Excel File Example
+
+| SKU | Retailer | Date | Units | Revenue |
+|-----|----------|------|-------|---------|
+| LIP001 | Target | 2026-01-15 | 100 | 2500.00 |
+| FON002 | Walmart | 2026-01-15 | 50 | 1200.00 |
+| MOS003 | Ulta | 2026-01-16 | 75 | 1875.00 |
+
+### 3. View Dashboard
+
+The **Dashboard** shows:
+- **Total Revenue**: Year-to-date revenue and units sold
+- **Gross Margin**: Total margin and margin percentage
+- **vs Forecast**: Performance compared to forecast
+- **vs Prior Year**: Year-over-year growth
+- **Sales by Brand**: Revenue and units by brand
+- **Sales by Retailer**: Revenue and SKU count by retailer
+
+Use the **Year** selector to view different years.
+
 ## API Endpoints
 
+### Brands
+- `GET /api/brands` - Get all brands
+- `POST /api/brands` - Create brand
+- `PUT /api/brands/:id` - Update brand
+- `DELETE /api/brands/:id` - Delete brand
+
+### Retailers
+- `GET /api/retailers` - Get all retailers
+- `POST /api/retailers` - Create retailer
+- `PUT /api/retailers/:id` - Update retailer
+- `DELETE /api/retailers/:id` - Delete retailer
+
 ### Products
-- `GET /api/products` - Get all products
-- `GET /api/products/:id` - Get single product
+- `GET /api/products` - Get all products with brand info
 - `POST /api/products` - Create product
 - `PUT /api/products/:id` - Update product
 - `DELETE /api/products/:id` - Delete product
 
-### Budgets
-- `GET /api/budgets` - Get all budgets
-- `GET /api/budgets/:id` - Get single budget
-- `POST /api/budgets` - Create budget
-- `PUT /api/budgets/:id` - Update budget
-- `DELETE /api/budgets/:id` - Delete budget
+### Sales
+- `GET /api/sales?start_date=&end_date=&retailer_id=&product_id=` - Get sales data
+- `POST /api/sales/upload` - Upload Excel file with sales data
+- `GET /api/sales/upload-history` - Get upload history
+- `DELETE /api/sales?start_date=&end_date=` - Delete sales in date range
 
-### Purchase Orders
-- `GET /api/purchase-orders` - Get all purchase orders
-- `GET /api/purchase-orders/:id` - Get single purchase order
-- `POST /api/purchase-orders` - Create purchase order
-- `PUT /api/purchase-orders/:id` - Update purchase order
-- `DELETE /api/purchase-orders/:id` - Delete purchase order
+### Forecasts
+- `GET /api/forecasts?year=&period_type=&brand_id=&category=` - Get forecasts
+- `POST /api/forecasts` - Create forecast
+- `PUT /api/forecasts/:id` - Update forecast
+- `DELETE /api/forecasts/:id` - Delete forecast
 
 ### Analytics
-- `GET /api/analytics/dashboard` - Get dashboard statistics
-
-## Usage Guide
-
-### Managing Products
-
-1. Navigate to the **Products** section
-2. Click **+ Add Product**
-3. Fill in product details:
-   - SKU (unique identifier)
-   - Product name
-   - Category
-   - Cost price and retail price
-   - Supplier information
-4. Click **Create Product**
-
-The product list shows profit margins automatically calculated from cost and retail prices.
-
-### Planning Budgets
-
-1. Navigate to the **Budgets** section
-2. Click **+ Add Budget**
-3. Select category and time period
-4. Set allocated amount
-5. Track spending by updating the spent amount
-6. Visual indicators show budget utilization
-
-### Creating Purchase Orders
-
-1. Navigate to the **Purchase Orders** section
-2. Click **+ New Purchase Order**
-3. Enter PO details (number, supplier, dates)
-4. Add line items by selecting products and quantities
-5. The total cost is automatically calculated
-6. Track order status through its lifecycle
-
-### Dashboard Overview
-
-The dashboard provides at-a-glance insights:
-- Total products and average margins
-- Budget allocation and spending
-- Purchase order statistics
-- Category-wise budget breakdown
-- Recent order activity
+- `GET /api/analytics/dashboard?year=` - Dashboard overview
+- `GET /api/analytics/by-category?year=` - Sales by category/subcategory
+- `GET /api/analytics/margins?year=&dimension=` - Margin analysis
+- `GET /api/analytics/performance?year=&period_type=` - Actual vs forecast vs prior year
 
 ## Database
 
-The application uses SQLite for data storage. The database file `beauty-planner.db` is created automatically on first run.
+The application uses SQLite with the following tables:
 
-### Tables
-- `products` - Product catalog
-- `budgets` - Budget allocations
-- `purchase_orders` - Purchase order headers
-- `po_items` - Purchase order line items
+- **brands**: Product brands/licenses
+- **retailers**: Retail partners
+- **products**: Product catalog (SKU, brand, category, subcategory, costs)
+- **sales**: Sales transactions (uploaded from Excel)
+- **forecasts**: Budget/forecast data
+- **seasonal_periods**: Seasonal period definitions
+- **upload_history**: Tracking of Excel uploads
+
+## Key Workflows
+
+### Monthly Sales Review
+1. Upload last month's sales data from Excel
+2. View Dashboard to see performance vs forecast and prior year
+3. Analyze margins by retailer and brand
+4. Identify top-performing SKUs and categories
+
+### Seasonal Planning
+1. Define seasonal periods (Christmas, Easter, Halloween)
+2. Create forecasts for seasonal periods
+3. Track actual performance against seasonal forecasts
+4. Compare to prior year seasonal performance
+
+### Retailer Analysis
+1. View sales by retailer on Dashboard
+2. Check number of SKUs sold per retailer
+3. Analyze margin performance by retailer
+4. Identify opportunities for growth
 
 ## Customization
 
-### Adding Categories
+### Adding Custom Categories
 
-To add custom product categories, update the category dropdown options in:
-- `src/components/Products.tsx`
-- `src/components/Budgets.tsx`
+Update the category options in `/src/components/Setup.tsx` for the Products tab to add your specific product categories and subcategories.
 
-### Styling
+### Seasonal Periods
 
-The app uses CSS variables for theming. Customize colors in `src/index.css`:
+Add seasonal period definitions through the API:
 
-```css
-:root {
-  --primary: #d946ef;
-  --secondary: #8b5cf6;
-  --success: #10b981;
-  --danger: #ef4444;
-  --warning: #f59e0b;
+```javascript
+POST /api/seasonal-periods
+{
+  "name": "Christmas 2026",
+  "start_date": "2026-11-01",
+  "end_date": "2026-12-31",
+  "year": 2026
 }
 ```
+
+## Troubleshooting
+
+### Excel Upload Fails
+- Ensure column names match exactly: SKU, Retailer, Date, Units, Revenue
+- Verify all SKUs exist in your product catalog
+- Check date format (YYYY-MM-DD or Excel date number)
+- Review upload history for error messages
+
+### Missing Data on Dashboard
+- Confirm sales data has been uploaded
+- Check year selector is set to correct year
+- Verify products have brand and category assigned
 
 ## License
 
 MIT
+
+## Support
+
+For issues or questions, please check the upload history for error details or review the browser console for frontend errors.

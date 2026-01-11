@@ -1,9 +1,11 @@
 import express from 'express';
 import cors from 'cors';
 import { initDatabase } from './database';
+import brandsRouter from './routes/brands';
+import retailersRouter from './routes/retailers';
 import productsRouter from './routes/products';
-import budgetsRouter from './routes/budgets';
-import purchaseOrdersRouter from './routes/purchase-orders';
+import salesRouter from './routes/sales';
+import forecastsRouter from './routes/forecasts';
 import analyticsRouter from './routes/analytics';
 
 const app = express();
@@ -12,13 +14,15 @@ const PORT = 3001;
 app.use(cors());
 app.use(express.json());
 
+app.use('/api/brands', brandsRouter);
+app.use('/api/retailers', retailersRouter);
 app.use('/api/products', productsRouter);
-app.use('/api/budgets', budgetsRouter);
-app.use('/api/purchase-orders', purchaseOrdersRouter);
+app.use('/api/sales', salesRouter);
+app.use('/api/forecasts', forecastsRouter);
 app.use('/api/analytics', analyticsRouter);
 
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', message: 'Beauty Merchandise Planner API' });
+  res.json({ status: 'ok', message: 'Beauty Sales & Forecast Tracker API' });
 });
 
 const startServer = async () => {
