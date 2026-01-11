@@ -11,7 +11,7 @@
     "build:server": "tsc -p tsconfig.server.json",
     "build:client": "vite build",
     "start": "node dist/server/index.js",
-    "seed": "ts-node-dev server/seed.ts"
+    "scrape": "ts-node-dev --transpile-only server/scraper.ts"
   },
   "keywords": ["brands", "partnerships", "collaborations", "consumer-products"],
   "author": "",
@@ -22,7 +22,9 @@
     "sqlite3": "^5.1.7",
     "date-fns": "^3.0.0",
     "multer": "^1.4.5-lts.1",
-    "xlsx": "^0.18.5"
+    "xlsx": "^0.18.5",
+    "dotenv": "^16.3.1",
+    "@google/generative-ai": "^0.21.0"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
